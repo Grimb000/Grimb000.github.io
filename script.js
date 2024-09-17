@@ -71,7 +71,6 @@ function updateColors() {
 
     // Определяем, какие координаты изменились
     if (document.activeElement === rInput || document.activeElement === gInput || document.activeElement === bInput) {
-        // Изменился RGB
         const [cmykC, cmykM, cmykY, cmykK] = rgbToCmyk(r, g, b);
         cInput.value = cmykC;
         mInput.value = cmykM;
@@ -83,7 +82,6 @@ function updateColors() {
         sInput.value = hsvS;
         vInput.value = hsvV;
     } else if (document.activeElement === cInput || document.activeElement === mInput || document.activeElement === yInput || document.activeElement === kInput) {
-        // Изменился CMYK
         const [rgbR, rgbG, rgbB] = cmykToRgb(c, m, y, k);
         rInput.value = rgbR;
         gInput.value = rgbG;
@@ -94,7 +92,6 @@ function updateColors() {
         sInput.value = hsvS;
         vInput.value = hsvV;
     } else if (document.activeElement === hInput || document.activeElement === sInput || document.activeElement === vInput) {
-        // Изменился HSV
         const [tempR, tempG, tempB] = hsvToRgb(h, s / 100, v / 100);
         rInput.value = tempR;
         gInput.value = tempG;
@@ -107,7 +104,6 @@ function updateColors() {
         kInput.value = cmykK;
     }
 
-    // Устанавливаем цвет фона
     document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 }
 
