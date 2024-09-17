@@ -69,6 +69,11 @@ function updateColors() {
     const s = validateInput(sInput.value, 0, 100);
     const v = validateInput(vInput.value, 0, 100);
 
+    cInput.value = c; mInput.value = m; yInput.value = y; kInput.value = k;
+    rInput.value = r; gInput.value = g; bInput.value = b;
+    hInput.value = h; sInput.value = s; vInput.value = v;
+
+
     // Определяем, какие координаты изменились
     if (document.activeElement === rInput || document.activeElement === gInput || document.activeElement === bInput) {
         const [cmykC, cmykM, cmykY, cmykK] = rgbToCmyk(r, g, b);
