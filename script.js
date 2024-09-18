@@ -1,3 +1,16 @@
+const cInput = document.getElementById('c');
+const mInput = document.getElementById('m');
+const yInput = document.getElementById('y');
+const kInput = document.getElementById('k');
+
+const rInput = document.getElementById('r');
+const gInput = document.getElementById('g');
+const bInput = document.getElementById('b');
+
+const hInput = document.getElementById('h');
+const sInput = document.getElementById('s');
+const vInput = document.getElementById('v');
+
 function cmykToRgb(c, m, y, k) {
     const r = 255 * (1 - c / 100) * (1 - k / 100);
     const g = 255 * (1 - m / 100) * (1 - k / 100);
@@ -46,25 +59,69 @@ function validateInput(value, min, max) {
     return isNaN(number) ? min : Math.max(min, Math.min(max, number));
 }
 
-function updateColors() {
-    const cInput = document.getElementById('c');
-    const mInput = document.getElementById('m');
-    const yInput = document.getElementById('y');
-    const kInput = document.getElementById('k');
-    const rInput = document.getElementById('r');
-    const gInput = document.getElementById('g');
-    const bInput = document.getElementById('b');
-    const hInput = document.getElementById('h');
-    const sInput = document.getElementById('s');
-    const vInput = document.getElementById('v');
+const colorPicker = document.getElementById('colorPicker');
+
+
+colorPicker.addEventListener('input', (event) => {
+    const hex = event.target.value;
+    const rgb = hexToRgb(hex);
+    document.getElementById('r').value = rgb.r;
+    document.getElementById('g').value = rgb.g;
+    document.getElementById('b').value = rgb.b;
 
     const c = validateInput(cInput.value, 0, 100);
     const m = validateInput(mInput.value, 0, 100);
     const y = validateInput(yInput.value, 0, 100);
     const k = validateInput(kInput.value, 0, 100);
+
     const r = validateInput(rInput.value, 0, 255);
     const g = validateInput(gInput.value, 0, 255);
     const b = validateInput(bInput.value, 0, 255);
+
+    const h = validateInput(hInput.value, 0, 360);
+    const s = validateInput(sInput.value, 0, 100);
+    const v = validateInput(vInput.value, 0, 100);
+
+
+    const [cmykC, cmykM, cmykY, cmykK] = rgbToCmyk(r, g, b);
+    cInput.value = cmykC;
+    mInput.value = cmykM;
+    yInput.value = cmykY;
+    kInput.value = cmykK;
+
+    const [hsvH, hsvS, hsvV] = rgbToHsv(r, g, b);
+    hInput.value = hsvH;
+    sInput.value = hsvS;
+    vInput.value = hsvV;
+
+});
+
+
+function hexToRgb(hex) {
+    let r = 0, g = 0, b = 0;
+    if (hex.length === 4) {
+        r = parseInt(hex[1] + hex[1], 16);
+        g = parseInt(hex[2] + hex[2], 16);
+        b = parseInt(hex[3] + hex[3], 16);
+    }
+    else if (hex.length === 7) {
+        r = parseInt(hex[1] + hex[2], 16);
+        g = parseInt(hex[3] + hex[4], 16);
+        b = parseInt(hex[5] + hex[6], 16);
+    }
+    return { r, g, b };
+}
+
+function updateColors() {
+    const c = validateInput(cInput.value, 0, 100);
+    const m = validateInput(mInput.value, 0, 100);
+    const y = validateInput(yInput.value, 0, 100);
+    const k = validateInput(kInput.value, 0, 100);
+
+    const r = validateInput(rInput.value, 0, 255);
+    const g = validateInput(gInput.value, 0, 255);
+    const b = validateInput(bInput.value, 0, 255);
+
     const h = validateInput(hInput.value, 0, 360);
     const s = validateInput(sInput.value, 0, 100);
     const v = validateInput(vInput.value, 0, 100);
@@ -74,7 +131,6 @@ function updateColors() {
     hInput.value = h; sInput.value = s; vInput.value = v;
 
 
-    // Определяем, какие координаты изменились
     if (document.activeElement === rInput || document.activeElement === gInput || document.activeElement === bInput) {
         const [cmykC, cmykM, cmykY, cmykK] = rgbToCmyk(r, g, b);
         cInput.value = cmykC;
@@ -115,5 +171,5 @@ function updateColors() {
 // Обработчик событий для инпутов
 const inputs = document.querySelectorAll('input');
 inputs.forEach(input => {
-    input.addEventListener('input', updateColors); // Используем 'blur'
+    input.addEventListener('input', updateColors);
 });
