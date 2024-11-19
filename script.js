@@ -1,16 +1,6 @@
-const cInput = document.getElementById('c');
-const mInput = document.getElementById('m');
-const yInput = document.getElementById('y');
-const kInput = document.getElementById('k');
+// Функции для конвертации между цветовыми моделями
 
-const rInput = document.getElementById('r');
-const gInput = document.getElementById('g');
-const bInput = document.getElementById('b');
-
-const hInput = document.getElementById('h');
-const sInput = document.getElementById('s');
-const vInput = document.getElementById('v');
-
+// Функция CMYK -> RGB
 function cmykToRgb(c, m, y, k) {
     const r = 255 * (1 - c / 100) * (1 - k / 100);
     const g = 255 * (1 - m / 100) * (1 - k / 100);
@@ -18,6 +8,7 @@ function cmykToRgb(c, m, y, k) {
     return [Math.round(r), Math.round(g), Math.round(b)];
 }
 
+// Функция RGB -> HSV
 function rgbToHsv(r, g, b) {
     r /= 255; g /= 255; b /= 255;
     const max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -39,6 +30,7 @@ function rgbToHsv(r, g, b) {
     return [Math.round(h * 360), Math.round(s * 100), Math.round(v * 100)];
 }
 
+// Функция RGB -> CMYK
 function rgbToCmyk(r, g, b) {
     const k = 1 - Math.max(r / 255, g / 255, b / 255);
     const c = (1 - r / 255 - k) / (1 - k) || 0;
@@ -47,123 +39,58 @@ function rgbToCmyk(r, g, b) {
     return [Math.round(c * 100), Math.round(m * 100), Math.round(y * 100), Math.round(k * 100)];
 }
 
+// Функция HSV -> RGB
 function hsvToRgb(h, s, v) {
-    if (s === 0) {
-        return [0, 0, 0];
-    }
-    h = h % 360;
-    const c = v * s; // Чистота
-    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
-    const m = v - c;
     let r, g, b;
-    if (h < 60) {
-        r = c;
-        g = x;
-        b = 0;
-    } else if (h < 120) {
-        r = x;
-        g = c;
-        b = 0;
-    } else if (h < 180) {
-        r = 0;
-        g = c;
-        b = x;
-    } else if (h < 240) {
-        r = 0;
-        g = x;
-        b = c;
-    } else if (h < 300) {
-        r = x;
-        g = 0;
-        b = c;
-    } else {
-        r = c;
-        g = 0;
-        b = x;
-    }
-    r = Math.round((r + m) * 255);
-    g = Math.round((g + m) * 255);
-    b = Math.round((b + m) * 255);
+    const f = (n, k = (n + h / 60) % 6) => v * (1 - s * Math.max(Math.min(k, 4 - k, 1), 0));
+    [r, g, b] = [0, 1, 2].map(n => Math.round(f(n) * 255));
     return [r, g, b];
 }
 
+// Функция для валидации ввода
 function validateInput(value, min, max) {
     let number = parseFloat(value);
     return isNaN(number) ? min : Math.max(min, Math.min(max, number));
 }
 
-const colorPicker = document.getElementById('colorPicker');
-
-colorPicker.addEventListener('input', (event) => {
-    const hex = event.target.value;
-    const rgb = hexToRgb(hex);
-    document.getElementById('r').value = rgb.r;
-    document.getElementById('g').value = rgb.g;
-    document.getElementById('b').value = rgb.b;
+// Обновление значений
+function updateColors(el) {
+    const cInput = document.getElementById('c');
+    const mInput = document.getElementById('m');
+    const yInput = document.getElementById('y');
+    const kInput = document.getElementById('k');
+    const rInput = document.getElementById('r');
+    const gInput = document.getElementById('g');
+    const bInput = document.getElementById('b');
+    const hInput = document.getElementById('h');
+    const sInput = document.getElementById('s');
+    const vInput = document.getElementById('v');
 
     const c = validateInput(cInput.value, 0, 100);
     const m = validateInput(mInput.value, 0, 100);
     const y = validateInput(yInput.value, 0, 100);
     const k = validateInput(kInput.value, 0, 100);
-
     const r = validateInput(rInput.value, 0, 255);
     const g = validateInput(gInput.value, 0, 255);
     const b = validateInput(bInput.value, 0, 255);
-
     const h = validateInput(hInput.value, 0, 360);
     const s = validateInput(sInput.value, 0, 100);
     const v = validateInput(vInput.value, 0, 100);
 
+    cInput.value = validateInput(cInput.value, 0, 100);
+    mInput.value = validateInput(mInput.value, 0, 100);
+    yInput.value = validateInput(yInput.value, 0, 100);
+    kInput.value = validateInput(kInput.value, 0, 100);
+    rInput.value = validateInput(rInput.value, 0, 255);
+    gInput.value = validateInput(gInput.value, 0, 255);
+    bInput.value = validateInput(bInput.value, 0, 255);
+    hInput.value = validateInput(hInput.value, 0, 360);
+    sInput.value = validateInput(sInput.value, 0, 100);
+    vInput.value = validateInput(vInput.value, 0, 100);
 
-    const [cmykC, cmykM, cmykY, cmykK] = rgbToCmyk(r, g, b);
-    cInput.value = cmykC;
-    mInput.value = cmykM;
-    yInput.value = cmykY;
-    kInput.value = cmykK;
-
-    const [hsvH, hsvS, hsvV] = rgbToHsv(r, g, b);
-    hInput.value = hsvH;
-    sInput.value = hsvS;
-    vInput.value = hsvV;
-
-});
-
-
-function hexToRgb(hex) {
-    let r = 0, g = 0, b = 0;
-    if (hex.length === 4) {
-        r = parseInt(hex[1] + hex[1], 16);
-        g = parseInt(hex[2] + hex[2], 16);
-        b = parseInt(hex[3] + hex[3], 16);
-    }
-    else if (hex.length === 7) {
-        r = parseInt(hex[1] + hex[2], 16);
-        g = parseInt(hex[3] + hex[4], 16);
-        b = parseInt(hex[5] + hex[6], 16);
-    }
-    return { r, g, b };
-}
-
-function updateColors() {
-    const c = validateInput(cInput.value, 0, 100);
-    const m = validateInput(mInput.value, 0, 100);
-    const y = validateInput(yInput.value, 0, 100);
-    const k = validateInput(kInput.value, 0, 100);
-
-    const r = validateInput(rInput.value, 0, 255);
-    const g = validateInput(gInput.value, 0, 255);
-    const b = validateInput(bInput.value, 0, 255);
-
-    const h = validateInput(hInput.value, 0, 360);
-    const s = validateInput(sInput.value, 0, 100);
-    const v = validateInput(vInput.value, 0, 100);
-
-    cInput.value = c; mInput.value = m; yInput.value = y; kInput.value = k;
-    rInput.value = r; gInput.value = g; bInput.value = b;
-    hInput.value = h; sInput.value = s; vInput.value = v;
-
-
-    if (document.activeElement === rInput || document.activeElement === gInput || document.activeElement === bInput) {
+    // Определяем, какие координаты изменились и обновляем другие модели
+    if (el === rInput || el === gInput || el === bInput) {
+        // Изменился RGB, пересчитываем CMYK и HSV
         const [cmykC, cmykM, cmykY, cmykK] = rgbToCmyk(r, g, b);
         cInput.value = cmykC;
         mInput.value = cmykM;
@@ -174,7 +101,8 @@ function updateColors() {
         hInput.value = hsvH;
         sInput.value = hsvS;
         vInput.value = hsvV;
-    } else if (document.activeElement === cInput || document.activeElement === mInput || document.activeElement === yInput || document.activeElement === kInput) {
+    } else if (el === cInput || el === mInput || el === yInput || el === kInput) {
+        // Изменился CMYK, пересчитываем RGB и HSV
         const [rgbR, rgbG, rgbB] = cmykToRgb(c, m, y, k);
         rInput.value = rgbR;
         gInput.value = rgbG;
@@ -184,7 +112,8 @@ function updateColors() {
         hInput.value = hsvH;
         sInput.value = hsvS;
         vInput.value = hsvV;
-    } else if (document.activeElement === hInput || document.activeElement === sInput || document.activeElement === vInput) {
+    } else if (el === hInput || el === sInput || el === vInput) {
+        // Изменился HSV, пересчитываем RGB и CMYK
         const [tempR, tempG, tempB] = hsvToRgb(h, s / 100, v / 100);
         rInput.value = tempR;
         gInput.value = tempG;
@@ -197,11 +126,83 @@ function updateColors() {
         kInput.value = cmykK;
     }
 
-    document.body.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+    // Обновляем ползунки
+    document.getElementById('c-slider').value = cInput.value;
+    document.getElementById('m-slider').value = mInput.value;
+    document.getElementById('y-slider').value = yInput.value;
+    document.getElementById('k-slider').value = kInput.value;
+    document.getElementById('r-slider').value = rInput.value;
+    document.getElementById('g-slider').value = gInput.value;
+    document.getElementById('b-slider').value = bInput.value;
+    document.getElementById('h-slider').value = hInput.value;
+    document.getElementById('s-slider').value = sInput.value;
+    document.getElementById('v-slider').value = vInput.value;
+
+    // Обновляем цвет фона
+    document.body.style.backgroundColor = `rgb(${rInput.value}, ${gInput.value}, ${bInput.value})`;
 }
 
-// Обработчик событий для инпутов
-const inputs = document.querySelectorAll('input');
+// Обработчики событий для инпутов и ползунков
+const inputs = document.querySelectorAll('input[type="number"]');
 inputs.forEach(input => {
-    input.addEventListener('input', updateColors);
+    input.addEventListener('input', (e)=>{updateColors(e.target)});
+});
+
+const sliders = document.querySelectorAll('input[type="range"]');
+sliders.forEach(slider => {
+    slider.addEventListener('input', (event) => {
+        const sliderId = event.target.id;
+        const value = event.target.value;
+
+        // Синхронизация ползунков и полей ввода
+        switch (sliderId) {
+            case 'c-slider':
+                document.getElementById('c').value = value;
+                updateColors(document.getElementById('c'));
+                break;
+            case 'm-slider':
+                document.getElementById('m').value = value;
+                updateColors(document.getElementById('m'));
+                break;
+            case 'y-slider':
+                document.getElementById('y').value = value;
+                updateColors(document.getElementById('y'));
+                break;
+            case 'k-slider':
+                document.getElementById('k').value = value;
+                updateColors(document.getElementById('k'));
+                break;
+            case 'r-slider':
+                document.getElementById('r').value = value;
+                updateColors(document.getElementById('r'));
+                break;
+            case 'g-slider':
+                document.getElementById('g').value = value;
+                updateColors(document.getElementById('g'));
+                break;
+            case 'b-slider':
+                document.getElementById('b').value = value;
+                updateColors(document.getElementById('b'));
+                break;
+            case 'h-slider':
+                document.getElementById('h').value = value;
+                updateColors(document.getElementById('h'));
+                break;
+            case 's-slider':
+                document.getElementById('s').value = value;
+                updateColors(document.getElementById('s'));
+                break;
+            case 'v-slider':
+                document.getElementById('v').value = value;
+                updateColors(document.getElementById('v'));
+                break;
+        }
+        // Обновляем цвета после изменения ползунка
+    });
+});
+
+// Инициализация страницы (например, если есть предустановленные значения, применим их)
+document.addEventListener('DOMContentLoaded', () => {
+    updateColors(document.getElementById('v'));
+    // Обновить начальные значения на странице
 });
